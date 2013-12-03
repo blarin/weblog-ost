@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>
+  <body>
+    <a href="./">main</a>
+    <a href="{{login_url}}">{{login_message}}</a>
+    <br/>
+    {% if user_name %}
+      you are- {{user_name}}
+      <br/>
+      <form action="/addblog" method="post">
+        <div>
+          name your new blog?<input type="text" name="blog_name" />
+        </div>
+        <div>
+          <input type="submit" value="new blog">
+        </div>
+      </form>
+      <br/>
+      your blogs:
+      <br/>
+      {% if not blogs %}
+        there aren't any blogs yet!<br/>
+      {% else %}
+        {% for blog in blogs %}
+          <a href="/blog/{{blog.name}}">{{blog.name}}</a> by <b>{{blog.author_name}}</b>
+          <hr/>
+        {% endfor %}
+      {% endif %}
+      <br/>
+      other blogs:
+      <br/>
+      {% if not other_blogs %}
+        there aren't any blogs yet!<br/>
+      {% else %}
+        {% for other_blog in other_blogs %}
+          <a href="/blog/{{other_blog.name}}">{{other_blog.name}}</a> by <b>{{other_blog.author_name}}</b>
+          <hr/>
+        {% endfor %}
+      {% endif %}
+
+    {% endif %}
+  </body>
+</html>
+{% endautoescape %}

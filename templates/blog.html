@@ -5,12 +5,14 @@
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
+    <a href="./">main</a>
     <a href="{{login_url}}">{{login_message}}</a>
     {{user_name}}
     <br/>
+    *{{blog.author}}*
     <b>{{blog_name}}</b>
     <br/>
-    {% if user_name %}
+    {% if blog.author == user_id %}
       <form action="/blog/{{blog_name}}/write" method="post">
         <input type="hidden" value="{{blog_name}}" name="blog_name">
         <input type="hidden" value="{{user_name}}" name="author">
@@ -24,8 +26,10 @@
           <input type="submit" value="write a post">
         </div>
       </form>
+    {% else %}
+      *{{user_name}}* is not *{{blog.author}}*
     {% endif %}
-
+    <hr/>
     {% for blog_post in blog_posts %}
       {% if blog_post.author == user_name %}
         <b>you</b> wrote:
@@ -34,6 +38,7 @@
       {% endif %}
       <h2>{{blog_post.title}}</h2>
       <blockquote>{{blog_post.content}}</blockquote>
+      <hr/>
     {% endfor %}
 
   </body>

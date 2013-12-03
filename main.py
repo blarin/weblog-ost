@@ -35,31 +35,29 @@ class MainHandler(webapp2.RequestHandler):
         if users.get_current_user():
           login_url = users.create_logout_url(self.request.uri)
           login_message = "Logout"
-          user_name = users.get_current_user()
+          user_name = users.get_current_user().nickname()
+          user_id = users.get_current_user().user_id()
+          blogs_query = Blog.query().filter(Blog.author == user_id).order(-Blog.date)
+          blogs = blogs_query.fetch(10)
+          other_blogs_query = Blog.query().filter(Blog.author != user_id).order(Blog.author).order(-Blog.date)
+          other_blogs = other_blogs_query.fetch(10)
         else:
           login_url = users.create_login_url(self.request.uri)
           login_message = "You Must Login"
           user_name = ""
+          blogs = []
+          other_blogs = []
 
         values = {
+          "blogs": blogs,
+          "other_blogs": other_blogs,
           "login_url": login_url,
           "login_message": login_message,
           "user_name": user_name
         }
 
-        template = JINJA_ENVIRONMENT.get_template("index.html")
+        template = JINJA_ENVIRONMENT.get_template("templates/index.html")
         self.response.write(template.render(values))
-
-def blog_key(blog_name):
-  return ndb.Key("Blog", blog_name)
-
-class BlogPost(ndb.Model):
-
-  author = ndb.UserProperty()
-  title = ndb.StringProperty(indexed=False)
-  content = ndb.StringProperty(indexed=False)
-  tags = ndb.StringProperty(indexed=False)
-  date = ndb.DateTimeProperty(auto_now_add=True)
 
 class BlogHandler(webapp2.RequestHandler):
 
@@ -70,25 +68,75 @@ class BlogHandler(webapp2.RequestHandler):
     if users.get_current_user() and blog_name != "":
       login_url = users.create_logout_url(self.request.uri)
       login_message = "Logout"
-      user_name = users.get_current_user()
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
     else:
       self.redirect("/")
       return
 
-    query = BlogPost.query(
-        ancestor=blog_key(blog_name)).order(-BlogPost.date)
+    blog_query = Blog.query(ancestor=blog_key(user_id)).order(-Blog.date)
+    blog = blog_query.get()
+
+    query = BlogPost.query(ancestor=blog_post_key(blog_name)).order(-BlogPost.date)
     blog_posts = query.fetch(10)
 
     values = {
+      "blog": blog,
       "blog_posts": blog_posts,
       "login_url": login_url,
       "login_message": login_message,
       "user_name": user_name,
+      "user_id": user_id,
       "blog_name": blog_name
     }
 
-    template = JINJA_ENVIRONMENT.get_template("blog.html")
+    template = JINJA_ENVIRONMENT.get_template("templates/blog.html")
     self.response.write(template.render(values))        
+
+def blog_key(author):
+  return ndb.Key("Author", author)
+
+class Blog(ndb.Model):
+
+  author = ndb.StringProperty()
+  author_name = ndb.StringProperty()
+  name = ndb.StringProperty()
+  date = ndb.DateTimeProperty(auto_now_add=True)
+
+class AddBlogHandler(webapp2.RequestHandler):
+
+  def post(self):
+    blog_name = self.request.get("blog_name")
+
+    blog_query = Blog.query().filter(Blog.name == blog_name)
+    blog = blog_query.get()
+    user_id = users.get_current_user().user_id()
+    user_name = users.get_current_user().nickname()
+
+    if user_name and blog_name != "" and blog is None:
+      blog = Blog(parent=blog_key(user_id))
+      blog.author = user_id
+      blog.author_name = user_name
+    else:  
+      self.redirect("/")
+      return
+
+    blog.name = blog_name
+    blog.put()
+
+    self.redirect("/blog/" + blog_name)
+
+def blog_post_key(blog_name):
+  return ndb.Key("Blog", blog_name)
+
+class BlogPost(ndb.Model):
+
+  author = ndb.StringProperty()
+  author_name = ndb.StringProperty()
+  title = ndb.StringProperty(indexed=False)
+  content = ndb.StringProperty(indexed=False)
+  tags = ndb.StringProperty(indexed=False)
+  date = ndb.DateTimeProperty(auto_now_add=True)
 
 class WriteHandler(webapp2.RequestHandler):
 
@@ -96,8 +144,9 @@ class WriteHandler(webapp2.RequestHandler):
     blog_name = self.request.get("blog_name")
 
     if users.get_current_user() and blog_name != "":
-      blog_post = BlogPost(parent=blog_key(blog_name))
-      blog_post.author = users.get_current_user()
+      blog_post = BlogPost(parent=blog_post_key(blog_name))
+      blog_post.author = users.get_current_user().user_id()
+      blog_post.author_name = users.get_current_user().nickname()
     else:
       self.redirect("/")
       return
@@ -106,9 +155,7 @@ class WriteHandler(webapp2.RequestHandler):
     blog_post.content = self.request.get("content")
     blog_post.put()
 
-    query_params = {"name": blog_name}
     self.redirect("/blog/" + blog_name)
-
 
 class ArticleHandler(webapp2.RequestHandler):
 
@@ -135,10 +182,11 @@ class ArticleHandler(webapp2.RequestHandler):
           "troll": "alot"
         }
 
-    template = JINJA_ENVIRONMENT.get_template("article.html")
+    template = JINJA_ENVIRONMENT.get_template("templates/article.html")
     self.response.write(template.render(values)) 
 
 app = webapp2.WSGIApplication([
+  ("/addblog", AddBlogHandler),
   ("/blog/.*/write", WriteHandler),
   ("/blog/article/.*", ArticleHandler),
   ("/blog/.*", BlogHandler),
