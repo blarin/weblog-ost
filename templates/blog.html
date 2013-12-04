@@ -12,6 +12,8 @@
     blog author id: *{{blog.author}}*<br/>
     name of blog:<b>{{blog_name}}</b><br/>
     <br/>
+    page: {{page_number}}
+    <br/>
     {% if blog.author == user_id %}
       <form action="/blog/{{blog_name}}/write" method="post">
         <input type="hidden" value="{{blog_name}}" name="blog_name">
@@ -42,7 +44,12 @@
       <a href="/blog/{{blog.name}}/article/{{article.title}}">see more</a>
       <hr/>
     {% endfor %}
-
+    {% if page_number > 1 %}
+      <a href="?page={{page_number - 1}}">view newer posts</a>
+    {% endif %}
+    {% if more_articles %}
+      <a href="?page={{page_number + 1}}">view older posts</a>
+    {% endif %}
   </body>
 </html>
 {% endautoescape %}

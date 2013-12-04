@@ -17,6 +17,7 @@
 import os
 import urllib
 import re
+import math
 
 from google.appengine.api import users
 from google.appengine.ext import ndb
@@ -62,6 +63,7 @@ class MainHandler(webapp2.RequestHandler):
 class BlogHandler(webapp2.RequestHandler):
 
   def get(self,blog_name):
+    page_size = 2
     if users.get_current_user() and blog_name != "":
       login_url = users.create_logout_url(self.request.uri)
       login_message = "Logout"
@@ -76,12 +78,23 @@ class BlogHandler(webapp2.RequestHandler):
     blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
     blog = blog_query.get()
 
+    page_number = int(self.request.get("page"))
+    if not page_number:
+      page_number = 1
+
     if not blog:
       blog_query = Blog.query().filter(Blog.name == blog_name)
       blog = blog_query.get()      
 
     query = Article.query(ancestor=article_key(blog_name)).order(-Article.date)
-    articles = query.fetch(10)
+    articles = query.fetch(page_size, offset=((page_number - 1) * page_size))
+    count = query.count()
+
+    if page_number * page_size < count:
+      more_articles = True
+    else:
+      more_articles = False
+
 
     for article in articles[:]:
       if len(article.content) > 500:
@@ -97,6 +110,8 @@ class BlogHandler(webapp2.RequestHandler):
       "user_name": user_name,
       "user_id": user_id,
       "blog_name": blog_name,
+      "page_number": page_number,
+      "more_articles": more_articles
     }
 
     template = JINJA_ENVIRONMENT.get_template("templates/blog.html")
