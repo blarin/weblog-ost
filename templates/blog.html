@@ -5,12 +5,12 @@
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
-    <a href="./">main</a>
+    <a href="/">main</a>
     <a href="{{login_url}}">{{login_message}}</a>
     {{user_name}}
     <br/>
-    *{{blog.author}}*
-    <b>{{blog_name}}</b>
+    blog author id: *{{blog.author}}*<br/>
+    name of blog:<b>{{blog_name}}</b><br/>
     <br/>
     {% if blog.author == user_id %}
       <form action="/blog/{{blog_name}}/write" method="post">
@@ -27,17 +27,19 @@
         </div>
       </form>
     {% else %}
-      *{{user_name}}* is not *{{blog.author}}*
+      *{{user_name}}* is not *{{blog.author_name}}*
     {% endif %}
     <hr/>
-    {% for blog_post in blog_posts %}
-      {% if blog_post.author == user_name %}
+    {% for article in articles %}
+      {% if article.author == user_name %}
         <b>you</b> wrote:
       {% else %}
         <b>{{user_name}}</b> wrote:
       {% endif %}
-      <h2>{{blog_post.title}}</h2>
-      <blockquote>{{blog_post.content}}</blockquote>
+      <h2>{{article.title}}</h2>
+      <blockquote>{{article.abbreviated_content}}</blockquote>
+      <br/>
+      <a href="/blog/{{blog.name}}/article/{{article.title}}">see more</a>
       <hr/>
     {% endfor %}
 

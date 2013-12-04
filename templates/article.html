@@ -5,27 +5,19 @@
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
+    <a href="/">main</a>
     <a href="{{login_url}}">{{login_message}}</a>
-    {{user_name}}
-    <br/>
-    <b>{{blog_name}}</b>
     <br/>
     {% if user_name %}
-      <form action="/blog/{{blog_name}}/write" method="post">
-        <input type="hidden" value="{{blog_name}}" name="blog_name">
-        <input type="hidden" value="{{user_name}}" name="author">
-        <div>
-          <input type="text" name="title" />
-        </div>
-        <div>
-          <textarea name="content" rows="3" cols="60"></textarea>
-        </div>
-        <div>
-          <input type="submit" value="write a post">
-        </div>
-      </form>
+      you are- {{user_name}}
     {% endif %}
-
+    <br/>
+    <br/>
+    <a href="/blog/{{article.blog_name}}"/>{{article.blog_name}}</a>
+    <br/>
+    {{article.title}}
+    <hr/>
+    {{article.content}}
   </body>
 </html>
 {% endautoescape %}
