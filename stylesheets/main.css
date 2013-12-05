@@ -52,8 +52,17 @@ body{
   color:darkorange;
 }
 
+.big{
+  font-size: 18pt;
+  font-weight: bold;
+}
+
 .small-margin{
   margin-bottom: 5px;
+}
+
+.small-margin-both{
+  margin: 5px 0;
 }
 
 .subtext{
@@ -89,6 +98,10 @@ body{
 .npages:hover, .opages:hover{
   color: white;
   text-decoration: underline;
+}
+
+.float-right{
+  float:right;
 }
 
 span.warning{
@@ -199,4 +212,16 @@ span.warning{
 #articles{
   padding:10px;
   background-color:#888;
+}
+
+#articles a{
+  color:white;
+  text-decoration: none;
+  text-transform: lowercase;
+}
+
+#articles a:hover{
+  color:white;
+  text-decoration: underline;
+  text-transform: lowercase;
 }

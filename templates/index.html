@@ -25,6 +25,7 @@
           <a class="opages" href="?bpage={{blogs_page_number + 1}}&opage={{other_blogs_page_number}}">view older</a>
         {% endif %}
         <br/>
+        <hr/>
         <ul>
         {% for blog in blogs %}
           <li><a class="blog-link"  href="/blog/{{blog.name}}">{{blog.name}}</a></li>
@@ -45,6 +46,7 @@
           <a class="opages"  href="?bpage={{blogs_page_number}}&opage={{other_blogs_page_number + 1}}">view older</a>
         {% endif %}
         <br/>
+        <hr/>
         <ul>
         {% for other_blog in other_blogs %}
           <li><a class="blog-link"  href="/blog/{{other_blog.name}}">{{other_blog.name}}</a></li>

@@ -1,43 +1,47 @@
 {% include "/templates/header.html" %}
 {% autoescape true %}
     <div id="content">
-    <h2 class="warning small-margin">{{blog_name}}</h2>
-    <span class="author-banner">{{blog.author_name}}</span> 
+      <h2 class="warning small-margin">{{blog_name}}</h2>
+      <span class="author-banner">{{blog.author_name}}</span> 
     
-    {% if blog.author == user_id %}
-      <div id="new-article">
-        <form action="/blog/{{blog_name}}/addarticle" method="post">
-          <input type="hidden" value="{{blog_name}}" name="blog_name">
-          <input type="hidden" value="{{user_name}}" name="author">
-          <h3 class="warning">Write a New Article?</h3>
-          <span class="warning">Title Your Article</span>
-          <input type="text" name="title" id="title"/>
-          <br/>
-          <br/>
-          <span class="warning">Add Some Content</span>
-          <textarea name="content"></textarea>
-          <br/>
-          <br/>
-          <span class="warning">Enter Some Comma-Separated Tags</span>
-          <input type="text" name="tags" />
-          <input type="submit" value="Write!">
-        </form>
-      </div>
-    {% endif %}
+      {% if blog.author == user_id %}
+        <div id="new-article">
+          <form action="/blog/{{blog_name}}/addarticle" method="post">
+            <input type="hidden" value="{{blog_name}}" name="blog_name">
+            <input type="hidden" value="{{user_name}}" name="author">
+            <h3 class="warning">Write a New Article?</h3>
+            <span class="warning">Title Your Article</span>
+            <input type="text" name="title" id="title"/>
+            <br/>
+            <br/>
+            <span class="warning">Add Some Content</span>
+            <textarea name="content"></textarea>
+            <br/>
+            <br/>
+            <span class="warning">Enter Some Comma-Separated Tags</span>
+            <input type="text" name="tags" />
+            <input type="submit" value="Write!">
+          </form>
+        </div>
+      {% endif %}
     <div id="articles">
-    {% for article in articles %}
-      <h2>{{article.title}}</h2>
-      <blockquote>{{article.abbreviated_content}}</blockquote>
+      {% if page_number > 1 %}
+        <a class="npages" href="?page={{page_number - 1}}">view newer posts</a>
+      {% endif %}
+      {% if more_articles %}
+        <a class="opages" href="?page={{page_number + 1}}">view older posts</a>
+      {% endif %}
       <br/>
-      <a href="/blog/{{blog.name}}/article/{{article.title}}">see more</a>
       <hr/>
-    {% endfor %}
-    {% if page_number > 1 %}
-      <a href="?page={{page_number - 1}}">view newer posts</a>
-    {% endif %}
-    {% if more_articles %}
-      <a href="?page={{page_number + 1}}">view older posts</a>
-    {% endif %}
+      {% for article in articles %}
+        <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
+        <h3 class="small-margin">{{article.title}}</h3>
+          {{article.abbreviated_content}}
+        <br/>
+        <a class="float-right" href="/blog/{{blog.name}}/article/{{article.title}}">View Full Article</a>
+        <br/>
+        <hr/>
+      {% endfor %}
     </div>
   </div>
 {% endautoescape %}

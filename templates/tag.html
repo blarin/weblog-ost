@@ -1,24 +1,28 @@
 {% include "/templates/header.html" %}
 {% autoescape true %}
-    <br/>
-    <br/>
-    {% for article in articles %}
-      {% if article.author_name == user_name %}
-        <b>you</b> wrote:
-      {% else %}
-        <b>{{article.author_name}}</b> wrote:
+  <div id="content">
+    <span class="warning">
+      articles matching <span class="big">"{{tag_name}}"</span> tag
+    </span>
+    <div id="articles">
+      {% if page_number > 1 %}
+        <a class="npages" href="?page={{page_number - 1}}">view newer posts</a>
       {% endif %}
-      <h2>{{article.title}}</h2>
-      <blockquote>{{article.abbreviated_content}}</blockquote>
+      {% if more_articles %}
+        <a class="opages" href="?page={{page_number + 1}}">view older posts</a>
+      {% endif %}
       <br/>
-      <a href="/blog/{{article.blog_name}}/article/{{article.title}}">see more</a>
       <hr/>
-    {% endfor %}
-    {% if page_number > 1 %}
-      <a href="?page={{page_number - 1}}">view newer posts</a>
-    {% endif %}
-    {% if more_articles %}
-      <a href="?page={{page_number + 1}}">view older posts</a>
-    {% endif %}
+      {% for article in articles %}
+        <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
+        <h3 class="small-margin">{{article.title}}</h3>
+          {{article.abbreviated_content}}
+        <br/>
+        <a class="float-right" href="/blog/{{article.blog_name}}/article/{{article.title}}">View Full Article</a>
+        <br/>
+        <hr/>
+      {% endfor %}
+    </div>
+  </div>
 {% endautoescape %}
 {% include "/templates/footer.html" %}

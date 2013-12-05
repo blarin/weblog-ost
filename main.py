@@ -226,13 +226,20 @@ class ArticleHandler(webapp2.RequestHandler):
     article_query = Article.query(ancestor=article_key(blog_name)).filter(Article.title == article_name)
     article = article_query.get()
 
+    blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
+    blog = blog_query.get()
+
+    if not blog:
+      blog_query = Blog.query().filter(Blog.name == blog_name)
+      blog = blog_query.get()  
+
     values = {
       "login_url": login_url,
       "login_message": login_message,
       "user_name": user_name,
       "user_name": user_name,
       "user_id": user_id,
-      "blog_name": blog_name,
+      "blog": blog,
       "article": article
     }
 

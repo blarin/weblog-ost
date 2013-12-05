@@ -1,22 +1,33 @@
 {% include "/templates/header.html" %}
 {% autoescape true %}
-    <br/>
-    {% if user_name %}
-      you are- {{user_name}}
-    {% endif %}
-    <br/>
-    <br/>
-    <a href="/blog/{{article.blog_name}}"/>{{article.blog_name}}</a>
-    <br/>
-    {{article.title}}
-    <hr/>
-    {{article.content}}
-    <br/>tags
+  <div id="content">
+    <span class="warning">
+      <span class="big">{{article.title}}</span>
+      <span class="">from blog:</span>
+      <span class="big">{{blog.name}}</span>
+    </span>
+    <span class="author-banner">{{blog.author_name}}</span> 
+    
+    <div id="articles">
+      <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
+        <br/>
+        <br/>
+        {{article.content}}
+      <br/>
+      <br/>
+      <hr/>
+    Tags:
     {% for tag in article.tags %}
-      <a href="/tag/{{tag}}">{{tag}}</a> 
-      {% if loop.index < article.tags|length %}
-        | <!--tag separators-->
+      {% if tag %}
+        <a href="/tag/{{tag}}">{{tag}}</a> 
+        {% if loop.index < article.tags|length %}
+          | <!--tag separators-->
+        {% endif %}
+      {% else %}
+        <span class="orange">No Tags Associated With This Article</span>
       {% endif %}
     {% endfor %}
+    </div>
+  </div>
 {% endautoescape %}
 {% include "/templates/footer.html" %}
