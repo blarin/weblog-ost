@@ -18,6 +18,13 @@
     {{article.title}}
     <hr/>
     {{article.content}}
+    <br/>tags
+    {% for tag in article.tags %}
+      <a href="/tag/{{tag}}">{{tag}}</a> 
+      {% if loop.index < article.tags|length %}
+        | <!--tag separators-->
+      {% endif %}
+    {% endfor %}
   </body>
 </html>
 {% endautoescape %}

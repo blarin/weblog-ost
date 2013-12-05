@@ -15,7 +15,7 @@
     page: {{page_number}}
     <br/>
     {% if blog.author == user_id %}
-      <form action="/blog/{{blog_name}}/write" method="post">
+      <form action="/blog/{{blog_name}}/addarticle" method="post">
         <input type="hidden" value="{{blog_name}}" name="blog_name">
         <input type="hidden" value="{{user_name}}" name="author">
         <div>
@@ -23,6 +23,9 @@
         </div>
         <div>
           <textarea name="content" rows="3" cols="60"></textarea>
+        </div>
+        <div>
+          enter some tags- separated by commas<input type="text" name="tags" />
         </div>
         <div>
           <input type="submit" value="write a post">

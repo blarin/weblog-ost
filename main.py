@@ -78,9 +78,11 @@ class BlogHandler(webapp2.RequestHandler):
     blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
     blog = blog_query.get()
 
-    page_number = int(self.request.get("page"))
+    page_number = self.request.get("page")
     if not page_number:
       page_number = 1
+    else:
+      page_number = int(page_number)
 
     if not blog:
       blog_query = Blog.query().filter(Blog.name == blog_name)
@@ -160,10 +162,10 @@ class Article(ndb.Model):
   blog_name = ndb.StringProperty()
   title = ndb.StringProperty()
   content = ndb.StringProperty(indexed=False)
-  tags = ndb.StringProperty(indexed=False)
+  tags = ndb.StringProperty(repeated=True)
   date = ndb.DateTimeProperty(auto_now_add=True)
 
-class WriteHandler(webapp2.RequestHandler):
+class AddArticleHandler(webapp2.RequestHandler):
 
   def post(self):
     blog_name = self.request.get("blog_name")
@@ -179,6 +181,10 @@ class WriteHandler(webapp2.RequestHandler):
 
     article.title = self.request.get("title")
     article.content = self.request.get("content")
+    article.tags = self.request.get("tags").split(",")
+    for i in range(0, len(article.tags)):
+      article.tags[i] = article.tags[i].strip()
+
     article.put()
 
     self.redirect("/blog/" + blog_name + "/article/" + article.title);
@@ -210,11 +216,39 @@ class ArticleHandler(webapp2.RequestHandler):
 
     template = JINJA_ENVIRONMENT.get_template("templates/article.html")
     self.response.write(template.render(values)) 
+    
+class TagHandler(webapp2.RequestHandler):
+
+  def get(self, blog_name):
+    if users.get_current_user() and blog_name != "":
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_id = users.get_current_user().user_id()
+      user_name = users.get_current_user().nickname()
+    else:
+      self.redirect("/")
+      return
+
+    # article_query = Article.query(ancestor=article_key(blog_name)).filter(Article.title == article_name)
+    # article = article_query.get()
+
+    values = {
+      "login_url": login_url,
+      "login_message": login_message,
+      "user_name": user_name,
+      "user_name": user_name,
+      "user_id": user_id,
+      "articles": []
+    }
+
+    template = JINJA_ENVIRONMENT.get_template("templates/tag.html")
+    self.response.write(template.render(values)) 
 
 app = webapp2.WSGIApplication([
   ("/addblog", AddBlogHandler),
-  ("/blog/.*/write", WriteHandler),
+  ("/blog/.*/addarticle", AddArticleHandler),
   ("/blog/(.*)/article/(.*)", ArticleHandler),
   ("/blog/(.*)", BlogHandler),
+  ("/tag/(.*)", TagHandler),
   ("/.*", MainHandler)
 ], debug=True)
