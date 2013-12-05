@@ -1,47 +1,31 @@
-<!DOCTYPE html>
+{% include "/templates/header.html" %}
 {% autoescape true %}
-<html>
-  <head>
-    <title>weblog</title>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <body>
-    <a href="/">main</a>
-    <a href="{{login_url}}">{{login_message}}</a>
-    {{user_name}}
-    <br/>
-    blog author id: *{{blog.author}}*<br/>
-    name of blog:<b>{{blog_name}}</b><br/>
-    <br/>
-    page: {{page_number}}
-    <br/>
+    <div id="content">
+    <h2 class="warning small-margin">{{blog_name}}</h2>
+    <span class="author-banner">{{blog.author_name}}</span> 
+    
     {% if blog.author == user_id %}
-      <form action="/blog/{{blog_name}}/addarticle" method="post">
-        <input type="hidden" value="{{blog_name}}" name="blog_name">
-        <input type="hidden" value="{{user_name}}" name="author">
-        <div>
-          <input type="text" name="title" />
-        </div>
-        <div>
-          <textarea name="content" rows="3" cols="60"></textarea>
-        </div>
-        <div>
-          enter some tags- separated by commas<input type="text" name="tags" />
-        </div>
-        <div>
-          <input type="submit" value="write a post">
-        </div>
-      </form>
-    {% else %}
-      *{{user_name}}* is not *{{blog.author_name}}*
+      <div id="new-article">
+        <form action="/blog/{{blog_name}}/addarticle" method="post">
+          <input type="hidden" value="{{blog_name}}" name="blog_name">
+          <input type="hidden" value="{{user_name}}" name="author">
+          <h3 class="warning">Write a New Article?</h3>
+          <span class="warning">Title Your Article</span>
+          <input type="text" name="title" id="title"/>
+          <br/>
+          <br/>
+          <span class="warning">Add Some Content</span>
+          <textarea name="content"></textarea>
+          <br/>
+          <br/>
+          <span class="warning">Enter Some Comma-Separated Tags</span>
+          <input type="text" name="tags" />
+          <input type="submit" value="Write!">
+        </form>
+      </div>
     {% endif %}
-    <hr/>
+    <div id="articles">
     {% for article in articles %}
-      {% if article.author_name == user_name %}
-        <b>you</b> wrote:
-      {% else %}
-        <b>{{article.author_name}}</b> wrote:
-      {% endif %}
       <h2>{{article.title}}</h2>
       <blockquote>{{article.abbreviated_content}}</blockquote>
       <br/>
@@ -54,6 +38,7 @@
     {% if more_articles %}
       <a href="?page={{page_number + 1}}">view older posts</a>
     {% endif %}
-  </body>
-</html>
+    </div>
+  </div>
 {% endautoescape %}
+{% include "/templates/footer.html" %}

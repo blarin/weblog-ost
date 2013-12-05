@@ -1,13 +1,5 @@
-<!DOCTYPE html>
+{% include "/templates/header.html" %}
 {% autoescape true %}
-<html>
-  <head>
-    <title>weblog</title>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <body>
-    <a href="/">main</a>
-    <a href="{{login_url}}">{{login_message}}</a>
     <br/>
     <br/>
     {% for article in articles %}
@@ -28,6 +20,5 @@
     {% if more_articles %}
       <a href="?page={{page_number + 1}}">view older posts</a>
     {% endif %}
-  </body>
-</html>
 {% endautoescape %}
+{% include "/templates/footer.html" %}

@@ -1,13 +1,5 @@
-<!DOCTYPE html>
+{% include "/templates/header.html" %}
 {% autoescape true %}
-<html>
-  <head>
-    <title>weblog</title>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <body>
-    <a href="/">main</a>
-    <a href="{{login_url}}">{{login_message}}</a>
     <br/>
     {% if user_name %}
       you are- {{user_name}}
@@ -26,6 +18,5 @@
         | <!--tag separators-->
       {% endif %}
     {% endfor %}
-  </body>
-</html>
 {% endautoescape %}
+{% include "/templates/footer.html" %}

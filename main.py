@@ -59,7 +59,7 @@ class MainHandler(webapp2.RequestHandler):
 
       else:
         login_url = users.create_login_url(self.request.uri)
-        login_message = "You Must Login"
+        login_message = "Login"
         user_name = ""
         blogs = []
         other_blogs = []
