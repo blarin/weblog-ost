@@ -2,6 +2,7 @@
 {% autoescape true %}
 <html>
   <head>
+    <title>weblog</title>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
@@ -36,10 +37,10 @@
     {% endif %}
     <hr/>
     {% for article in articles %}
-      {% if article.author == user_name %}
+      {% if article.author_name == user_name %}
         <b>you</b> wrote:
       {% else %}
-        <b>{{user_name}}</b> wrote:
+        <b>{{article.author_name}}</b> wrote:
       {% endif %}
       <h2>{{article.title}}</h2>
       <blockquote>{{article.abbreviated_content}}</blockquote>

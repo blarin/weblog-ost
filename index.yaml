@@ -5,6 +5,12 @@ indexes:
   - name: date
     direction: desc
 
+- kind: Tag
+  ancestor: yes
+  properties:
+  - name: date
+    direction: desc    
+
 - kind: Blog
   ancestor: yes
   properties:

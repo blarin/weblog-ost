@@ -1,18 +1,4 @@
 #!/usr/bin/env python
-#
-# Copyright 2007 Google Inc.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
 
 import os
 import urllib
@@ -33,28 +19,65 @@ JINJA_ENVIRONMENT = jinja2.Environment(
 class MainHandler(webapp2.RequestHandler):
 
   def get(self):
+      page_size = 2
       if users.get_current_user():
         login_url = users.create_logout_url(self.request.uri)
         login_message = "Logout"
         user_name = users.get_current_user().nickname()
         user_id = users.get_current_user().user_id()
+        
+        blogs_page_number = self.request.get("bpage")        
+        if not blogs_page_number:
+          blogs_page_number = 1
+        else:
+          blogs_page_number = int(blogs_page_number)
+
         blogs_query = Blog.query().filter(Blog.author == user_id).order(-Blog.date)
-        blogs = blogs_query.fetch(10)
+        blogs = blogs_query.fetch(page_size, offset=((blogs_page_number - 1) * page_size))
+        
+        other_blogs_page_number = self.request.get("opage")
+        if not other_blogs_page_number:
+          other_blogs_page_number = 1
+        else:
+          other_blogs_page_number = int(other_blogs_page_number)
+
         other_blogs_query = Blog.query().filter(Blog.author != user_id).order(Blog.author).order(-Blog.date)
-        other_blogs = other_blogs_query.fetch(10)
+        other_blogs = other_blogs_query.fetch(page_size, offset=((other_blogs_page_number - 1) * page_size))
+
+        blogs_count = blogs_query.count()
+        other_blogs_count = other_blogs_query.count()
+
+        if blogs_page_number * page_size < blogs_count:
+          blogs_more_articles = True
+        else:
+          blogs_more_articles = False
+
+        if other_blogs_page_number * page_size < other_blogs_count:
+          other_blogs_more_articles = True
+        else:
+          other_blogs_more_articles = False
+
       else:
         login_url = users.create_login_url(self.request.uri)
         login_message = "You Must Login"
         user_name = ""
         blogs = []
         other_blogs = []
+        blogs_more_articles = None
+        blogs_page_number = None
+        other_blogs_page_number = None
+        other_blogs_more_articles = None
 
       values = {
         "blogs": blogs,
         "other_blogs": other_blogs,
         "login_url": login_url,
         "login_message": login_message,
-        "user_name": user_name
+        "user_name": user_name,
+        "blogs_more_blogs": blogs_more_articles,
+        "blogs_page_number": blogs_page_number,
+        "other_blogs_page_number": other_blogs_page_number,
+        "other_blogs_more_blogs": other_blogs_more_articles
       }
 
       template = JINJA_ENVIRONMENT.get_template("templates/index.html")
@@ -73,8 +96,6 @@ class BlogHandler(webapp2.RequestHandler):
       self.redirect("/")
       return
 
-    # it would be nice if this would work  
-    #blog_query = Blog.query(ancestor=blog_key(user_id)).order(-Blog.date)
     blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
     blog = blog_query.get()
 
@@ -128,6 +149,7 @@ class Blog(ndb.Model):
   author_name = ndb.StringProperty()
   name = ndb.StringProperty()
   date = ndb.DateTimeProperty(auto_now_add=True)
+
 
 class AddBlogHandler(webapp2.RequestHandler):
 
@@ -219,30 +241,52 @@ class ArticleHandler(webapp2.RequestHandler):
     
 class TagHandler(webapp2.RequestHandler):
 
-  def get(self, blog_name):
-    if users.get_current_user() and blog_name != "":
+  def get(self, tag_name):
+    page_size = 2
+    if users.get_current_user() and tag_name != "":
       login_url = users.create_logout_url(self.request.uri)
       login_message = "Logout"
-      user_id = users.get_current_user().user_id()
       user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
     else:
       self.redirect("/")
       return
 
-    # article_query = Article.query(ancestor=article_key(blog_name)).filter(Article.title == article_name)
-    # article = article_query.get()
+    page_number = self.request.get("page")
+    if not page_number:
+      page_number = 1
+    else:
+      page_number = int(page_number)
+
+    query = Article.query().order(-Article.date).filter(Article.tags == tag_name)
+    articles = query.fetch(page_size, offset=((page_number - 1) * page_size))
+    count = query.count()
+
+    if page_number * page_size < count:
+      more_articles = True
+    else:
+      more_articles = False
+
+
+    for article in articles[:]:
+      if len(article.content) > 500:
+        article.abbreviated_content = article.content[:497] + "..."
+      else:
+        article.abbreviated_content = article.content
 
     values = {
+      "articles": articles,
       "login_url": login_url,
       "login_message": login_message,
       "user_name": user_name,
-      "user_name": user_name,
       "user_id": user_id,
-      "articles": []
+      "tag_name": tag_name,
+      "page_number": page_number,
+      "more_articles": more_articles
     }
 
     template = JINJA_ENVIRONMENT.get_template("templates/tag.html")
-    self.response.write(template.render(values)) 
+    self.response.write(template.render(values))     
 
 app = webapp2.WSGIApplication([
   ("/addblog", AddBlogHandler),

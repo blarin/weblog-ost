@@ -2,6 +2,7 @@
 {% autoescape true %}
 <html>
   <head>
+    <title>weblog</title>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
@@ -30,6 +31,12 @@
           <a href="/blog/{{blog.name}}">{{blog.name}}</a> by <b>{{blog.author_name}}</b>
           <hr/>
         {% endfor %}
+        {% if blogs_page_number > 1 %}
+          <a href="?bpage={{blogs_page_number - 1}}&opage={{other_blogs_page_number}}">view newer blogs</a>
+        {% endif %}
+        {% if blogs_more_blogs %}
+          <a href="?bpage={{blogs_page_number + 1}}&opage={{other_blogs_page_number}}">view older blogs</a>
+        {% endif %}
       {% endif %}
       <br/>
       other blogs:
@@ -41,6 +48,12 @@
           <a href="/blog/{{other_blog.name}}">{{other_blog.name}}</a> by <b>{{other_blog.author_name}}</b>
           <hr/>
         {% endfor %}
+        {% if other_blogs_page_number > 1 %}
+          <a href="?bpage={{blogs_page_number}}&opage={{other_blogs_page_number - 1}}">view newer blogs</a>
+        {% endif %}
+        {% if other_blogs_more_blogs %}
+          <a href="?bpage={{blogs_page_number}}&opage={{other_blogs_page_number + 1}}">view older blogs</a>
+        {% endif %}
       {% endif %}
 
     {% endif %}

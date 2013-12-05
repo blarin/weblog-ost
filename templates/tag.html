@@ -2,13 +2,32 @@
 {% autoescape true %}
 <html>
   <head>
+    <title>weblog</title>
     <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
   </head>
   <body>
     <a href="/">main</a>
     <a href="{{login_url}}">{{login_message}}</a>
     <br/>
-    
+    <br/>
+    {% for article in articles %}
+      {% if article.author_name == user_name %}
+        <b>you</b> wrote:
+      {% else %}
+        <b>{{article.author_name}}</b> wrote:
+      {% endif %}
+      <h2>{{article.title}}</h2>
+      <blockquote>{{article.abbreviated_content}}</blockquote>
+      <br/>
+      <a href="/blog/{{article.blog_name}}/article/{{article.title}}">see more</a>
+      <hr/>
+    {% endfor %}
+    {% if page_number > 1 %}
+      <a href="?page={{page_number - 1}}">view newer posts</a>
+    {% endif %}
+    {% if more_articles %}
+      <a href="?page={{page_number + 1}}">view older posts</a>
+    {% endif %}
   </body>
 </html>
 {% endautoescape %}
