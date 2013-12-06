@@ -12,76 +12,76 @@ import webapp2
 import jinja2
 
 JINJA_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    extensions=["jinja2.ext.autoescape"],
-    autoescape=True)
+  loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
+  extensions=["jinja2.ext.autoescape"],
+  autoescape=True)
 
 class MainHandler(webapp2.RequestHandler):
 
   def get(self):
-      page_size = 2
-      if users.get_current_user():
-        login_url = users.create_logout_url(self.request.uri)
-        login_message = "Logout"
-        user_name = users.get_current_user().nickname()
-        user_id = users.get_current_user().user_id()
-        
-        blogs_page_number = self.request.get("bpage")        
-        if not blogs_page_number:
-          blogs_page_number = 1
-        else:
-          blogs_page_number = int(blogs_page_number)
-
-        blogs_query = Blog.query().filter(Blog.author == user_id).order(-Blog.date)
-        blogs = blogs_query.fetch(page_size, offset=((blogs_page_number - 1) * page_size))
-        
-        other_blogs_page_number = self.request.get("opage")
-        if not other_blogs_page_number:
-          other_blogs_page_number = 1
-        else:
-          other_blogs_page_number = int(other_blogs_page_number)
-
-        other_blogs_query = Blog.query().filter(Blog.author != user_id).order(Blog.author).order(-Blog.date)
-        other_blogs = other_blogs_query.fetch(page_size, offset=((other_blogs_page_number - 1) * page_size))
-
-        blogs_count = blogs_query.count()
-        other_blogs_count = other_blogs_query.count()
-
-        if blogs_page_number * page_size < blogs_count:
-          blogs_more_articles = True
-        else:
-          blogs_more_articles = False
-
-        if other_blogs_page_number * page_size < other_blogs_count:
-          other_blogs_more_articles = True
-        else:
-          other_blogs_more_articles = False
-
+    page_size = 2
+    if users.get_current_user():
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+      
+      blogs_page_number = self.request.get("bpage")        
+      if not blogs_page_number:
+        blogs_page_number = 1
       else:
-        login_url = users.create_login_url(self.request.uri)
-        login_message = "Login"
-        user_name = ""
-        blogs = []
-        other_blogs = []
-        blogs_more_articles = None
-        blogs_page_number = None
-        other_blogs_page_number = None
-        other_blogs_more_articles = None
+        blogs_page_number = int(blogs_page_number)
 
-      values = {
-        "blogs": blogs,
-        "other_blogs": other_blogs,
-        "login_url": login_url,
-        "login_message": login_message,
-        "user_name": user_name,
-        "blogs_more_blogs": blogs_more_articles,
-        "blogs_page_number": blogs_page_number,
-        "other_blogs_page_number": other_blogs_page_number,
-        "other_blogs_more_blogs": other_blogs_more_articles
-      }
+      blogs_query = Blog.query().filter(Blog.author == user_id).order(-Blog.date)
+      blogs = blogs_query.fetch(page_size, offset=((blogs_page_number - 1) * page_size))
+      
+      other_blogs_page_number = self.request.get("opage")
+      if not other_blogs_page_number:
+        other_blogs_page_number = 1
+      else:
+        other_blogs_page_number = int(other_blogs_page_number)
 
-      template = JINJA_ENVIRONMENT.get_template("templates/index.html")
-      self.response.write(template.render(values))
+      other_blogs_query = Blog.query().filter(Blog.author != user_id).order(Blog.author).order(-Blog.date)
+      other_blogs = other_blogs_query.fetch(page_size, offset=((other_blogs_page_number - 1) * page_size))
+
+      blogs_count = blogs_query.count()
+      other_blogs_count = other_blogs_query.count()
+
+      if blogs_page_number * page_size < blogs_count:
+        blogs_more_articles = True
+      else:
+        blogs_more_articles = False
+
+      if other_blogs_page_number * page_size < other_blogs_count:
+        other_blogs_more_articles = True
+      else:
+        other_blogs_more_articles = False
+
+    else:
+      login_url = users.create_login_url(self.request.uri)
+      login_message = "Login"
+      user_name = ""
+      blogs = []
+      other_blogs = []
+      blogs_more_articles = None
+      blogs_page_number = None
+      other_blogs_page_number = None
+      other_blogs_more_articles = None
+
+    values = {
+      "blogs": blogs,
+      "other_blogs": other_blogs,
+      "login_url": login_url,
+      "login_message": login_message,
+      "user_name": user_name,
+      "blogs_more_blogs": blogs_more_articles,
+      "blogs_page_number": blogs_page_number,
+      "other_blogs_page_number": other_blogs_page_number,
+      "other_blogs_more_blogs": other_blogs_more_articles
+    }
+
+    template = JINJA_ENVIRONMENT.get_template("templates/index.html")
+    self.response.write(template.render(values))
 
 class BlogHandler(webapp2.RequestHandler):
 
@@ -123,7 +123,7 @@ class BlogHandler(webapp2.RequestHandler):
       if len(article.content) > 500:
         article.abbreviated_content = article.content[:497] + "..."
       else:
-        article.abbreviated_content = article.content
+        article.abbreviated_content = re.sub(r"(https?://\S+)", r"<a href='\1'>\1</a>", article.content)
 
     values = {
       "blog": blog,
