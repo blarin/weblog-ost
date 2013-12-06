@@ -16,9 +16,26 @@ JINJA_ENVIRONMENT = jinja2.Environment(
   extensions=["jinja2.ext.autoescape"],
   autoescape=True)
 
+def shorten(text):
+  return find_links(text[:497] + "...")
+
+def find_links(text):
+  links = re.findall(r"(https?://\S+)", text)
+  for link in links[:]:
+    if link[-4:] == ".jpg" or link[-4:] == ".gif" or link[-4:] == ".png":
+      text = text.replace(link, "<a href='" + link + "' target='_blank'><img src='" + link + "'/></a>")
+    else:
+      text = text.replace(link, "<a href='" + link + "' target='_blank'>" + link + "</a>")
+  return text
+
 class MainHandler(webapp2.RequestHandler):
 
   def get(self):
+    paths = os.path.split(self.request.url)
+    if paths[1] != "":
+      self.redirect("/")
+      return
+
     page_size = 2
     if users.get_current_user():
       login_url = users.create_logout_url(self.request.uri)
@@ -121,9 +138,9 @@ class BlogHandler(webapp2.RequestHandler):
 
     for article in articles[:]:
       if len(article.content) > 500:
-        article.abbreviated_content = article.content[:497] + "..."
+        article.abbreviated_content = shorten(article.content)
       else:
-        article.abbreviated_content = re.sub(r"(https?://\S+)", r"<a href='\1'>\1</a>", article.content)
+        article.abbreviated_content = find_links(article.content)
 
     values = {
       "blog": blog,
@@ -205,11 +222,15 @@ class AddArticleHandler(webapp2.RequestHandler):
     article.content = self.request.get("content")
     article.tags = self.request.get("tags").split(",")
     for i in range(0, len(article.tags)):
-      article.tags[i] = article.tags[i].strip()
+      article.tags[i] = article.tags[i].lower().strip()
+
+    if article.title == "" or article.content == "":
+      self.redirect("/blog/" + blog_name)
+      return
 
     article.put()
 
-    self.redirect("/blog/" + blog_name + "/article/" + article.title);
+    self.redirect("/blog/" + blog_name + "/article/" + article.title)
 
 class ArticleHandler(webapp2.RequestHandler):
 
@@ -232,6 +253,8 @@ class ArticleHandler(webapp2.RequestHandler):
     if not blog:
       blog_query = Blog.query().filter(Blog.name == blog_name)
       blog = blog_query.get()  
+
+    article.content = find_links(article.content)
 
     values = {
       "login_url": login_url,
@@ -277,9 +300,9 @@ class TagHandler(webapp2.RequestHandler):
 
     for article in articles[:]:
       if len(article.content) > 500:
-        article.abbreviated_content = article.content[:497] + "..."
+        article.abbreviated_content = shorten(article.content)
       else:
-        article.abbreviated_content = article.content
+        article.abbreviated_content = find_links(article.content)
 
     values = {
       "articles": articles,
@@ -295,10 +318,121 @@ class TagHandler(webapp2.RequestHandler):
     template = JINJA_ENVIRONMENT.get_template("templates/tag.html")
     self.response.write(template.render(values))     
 
+def image_key(author):
+  return ndb.Key("Author", author)
+
+class Image(ndb.Model):
+
+  author = ndb.StringProperty()
+  author_name = ndb.StringProperty()
+  image = ndb.BlobProperty()
+  filename = ndb.StringProperty()
+  date = ndb.DateTimeProperty(auto_now_add=True)
+
+class ImageHandler(webapp2.RequestHandler):
+
+  def get(self, filename):
+    if users.get_current_user():
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+    else:
+      self.redirect("/")
+      return
+
+    query = Image.query().order(-Image.date).filter(Image.author == user_id and Image.filename == filename)
+    images = query.fetch()
+
+    for image in images:
+      self.response.headers["Content-Type"] = "image/jpg"
+      self.response.out.write(image.image)
+
+  def post(self, image_name):
+    #image_name really doesn't have a meaning here
+    if users.get_current_user():
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+      image = Image(parent=image_key(user_id))
+      image.author = users.get_current_user().user_id()
+      image.author_name = users.get_current_user().nickname()
+    else:
+      self.redirect("/")
+      return
+
+    filename = self.request.params["image"].filename
+    count = 0
+
+    extension = filename[-4:]
+    name = filename[:-4]
+    while True:
+      query = Image.query().order(-Image.date).filter(Image.filename == filename)
+      images = query.get()
+
+      if images:
+        count = count + 1
+        name =  name + "%d" % count
+        filename = name + extension
+      else:
+        break
+
+    image.filename = filename
+    image.image = self.request.get("image")
+    image.put()
+
+    self.redirect("/image/"+image.filename)
+
+class ImagePageHandler(webapp2.RequestHandler):
+
+  def get(self):
+    page_size = 2
+    if users.get_current_user():
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+    else:
+      self.redirect("/")
+      return
+
+    page_number = self.request.get("page")
+    if not page_number:
+      page_number = 1
+    else:
+      page_number = int(page_number)
+
+    query = Image.query().order(-Image.date).filter(Article.author == user_id)
+    images = query.fetch(page_size, offset=((page_number - 1) * page_size))
+    count = query.count()
+
+    if page_number * page_size < count:
+      more_images = True
+    else:
+      more_images = False
+
+    paths = os.path.split(self.request.url)
+    page_url = paths[0]
+
+    values = {
+      "images": images,
+      "page_url": page_url,
+      "login_url": login_url,
+      "login_message": login_message,
+      "user_name": user_name,
+      "user_id": user_id,
+      "page_number": page_number,
+      "more_images": more_images
+    }
+
+    template = JINJA_ENVIRONMENT.get_template("templates/image.html")
+    self.response.write(template.render(values))     
+
 app = webapp2.WSGIApplication([
   ("/addblog", AddBlogHandler),
   ("/blog/.*/addarticle", AddArticleHandler),
   ("/blog/(.*)/article/(.*)", ArticleHandler),
+  ("/image", ImagePageHandler),
+  ("/image/(.*)", ImageHandler),
   ("/blog/(.*)", BlogHandler),
   ("/tag/(.*)", TagHandler),
   ("/.*", MainHandler)

@@ -1,0 +1,39 @@
+{% include "/templates/header.html" %}
+{% autoescape true %}
+  <div id="content">
+    <h2 class="warning small-margin">Upload Some Images</h2>
+      <div id="new-article">
+        <form action="/image/addimage" method="post" enctype="multipart/form-data">
+          <input type="hidden" value="{{user_name}}" name="author">
+          <h3 class="warning">Select a File</h3>
+          <input type="file" name="image" /><input type="submit" value="Upload!"/>
+        </form>
+      </div>
+    <div id="images">
+      {% if page_number > 1 %}
+        <a class="npages" href="?page={{page_number - 1}}">view newer images</a>
+      {% endif %}
+      {% if more_images %}
+        <a class="opages" href="?page={{page_number + 1}}">view older images</a>
+      {% endif %}
+      <br/>
+      <hr/>
+      {% for image in images %}
+        <div class="uploaded-image">
+          <a href="{{page_url}}/image/{{image.filename}}" target="_blank"><img class="thumb" src="/image/{{image.filename}}"/></a>
+          <div class="image-info">
+            <span class="float-right subtext">{{image.date.strftime('%H:%m on %m-%d-%Y')}}</span>
+            <br/>
+            <br/>
+            <span class="warning">Permalink:</span>
+            <br/>
+            <br/>
+            <span class="warning">{{page_url}}/image/{{image.filename}}</span>
+          </div>
+          <div style="clear:both"></div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+{% endautoescape %}
+{% include "/templates/footer.html" %}

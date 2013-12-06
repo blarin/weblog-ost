@@ -4,7 +4,7 @@
     <span class="warning">
       <span class="big">{{article.title}}</span>
       <span class="">from blog:</span>
-      <span class="big">{{blog.name}}</span>
+      <span class="big"><a class="blog-name" href="/blog/{{blog.name}}">{{blog.name}}</a></span>
     </span>
     <span class="author-banner">{{blog.author_name}}</span> 
     
@@ -12,7 +12,7 @@
       <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
         <br/>
         <br/>
-        {{article.content}}
+        {{article.content|safe}}
       <br/>
       <br/>
       <hr/>

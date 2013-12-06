@@ -7,10 +7,11 @@
   </head>
   <body>
     <div id="head">
-      <a href="/">Home</a>
-      <a href="{{login_url}}">{{login_message}}</a>
+      <a class="navlink float-left" href="/">Home</a>
+      <a class="navlink float-left" href="/image" target="_blank">UPLOADS</a>
+      <a class="navlink float-right" href="{{login_url}}">{{login_message}}</a>
       {% if user_name %}
-        <span id="welcome" >Welcome, {{user_name}}</span>
+        <a class="userlink navlink float-right" href="/image">{{user_name}}</a>
       {% endif %}
       <div id="logo">
         weblog v0.0.1
