@@ -148,6 +148,7 @@ span.warning{
   height:20px;
   padding:0;
 }
+
 #new-blog input[type=submit]{
   border:none;
   width:70px;
@@ -227,6 +228,21 @@ span.warning{
   background-color: lightgreen;
 }
 
+#new-article input[type=text].smaller-width{
+  border:none;
+  width:186px;
+  height:20px;
+  padding:0;
+}
+
+.cancel{
+  border:none;
+  width:70px;
+  height:20px;
+  margin:0;
+  background-color: red;
+}
+
 #articles{
   padding:10px;
   background-color:#888;
@@ -242,6 +258,14 @@ span.warning{
   color:white;
   text-decoration: underline;
   text-transform: lowercase;
+}
+
+#articles .no-lower{
+  text-transform: none;
+}
+
+#articles .no-lower:hover{
+  text-transform: none;
 }
 
 #articles img{

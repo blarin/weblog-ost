@@ -8,10 +8,10 @@
   <body>
     <div id="head">
       <a class="navlink float-left" href="/">Home</a>
-      <a class="navlink float-left" href="/image" target="_blank">UPLOADS</a>
       <a class="navlink float-right" href="{{login_url}}">{{login_message}}</a>
       {% if user_name %}
         <a class="userlink navlink float-right" href="/image">{{user_name}}</a>
+        <a class="navlink float-left" href="/image" target="_blank">UPLOADS</a>
       {% endif %}
       <div id="logo">
         weblog v0.0.1

@@ -35,15 +35,19 @@
       {% endif %}
       <br/>
       <hr/>
-      {% for article in articles %}
-        <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
-        <h3 class="small-margin">{{article.title}}</h3>
-          {{article.abbreviated_content|safe}}
-        <br/>
-        <a class="float-right" href="/blog/{{blog.name}}/article/{{article.title}}">View Full Article</a>
-        <br/>
-        <hr/>
-      {% endfor %}
+      {% if articles|length > 0 %}
+        {% for article in articles %}
+          <span class="subtext">{{article.date.strftime('%m-%d-%Y')}}</span>
+          <h3 class="small-margin">{{article.title}}</h3>
+            {{article.abbreviated_content|safe}}
+          <br/>
+          <a class="float-right no-lower" href="/blog/{{blog.name}}/article/{{article.title}}">Permalink</a>
+          <br/>
+          <hr/>
+        {% endfor %}
+      {% else %}
+        No Articles Associated With This Blog
+      {% endif %}
     </div>
   </div>
 {% endautoescape %}

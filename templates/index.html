@@ -1,69 +1,64 @@
 {% include "/templates/header.html" %}
 {% autoescape true %}
     <div id="content">
-    {% if user_name %}
-      <div id="new-blog">
-        <h3 class="warning">Create a New Blog?</h3>
-        <form action="/addblog" method="post">
-          <span class="warning">Title Your Blog</span>
-          <input type="text" name="blog_name" />
-          <input type="submit" value="Create!">
-        </form>
-      </div>
+      {% if user_name %}
+        <div id="new-blog">
+          <h3 class="warning">Create a New Blog?</h3>
+          <form action="/addblog" method="post">
+            <span class="warning">Title Your Blog</span>
+            <input type="text" name="blog_name" />
+            <input type="submit" value="Create!">
+          </form>
+        </div>
+      {% endif %}
       <div id="blogs">
         <h2 class="warning">Discover!</h3>
         <div id="mine">
           <h3 class="warning">Your Blogs</h3>
-      {% if not blogs %}
-        You haven't written a blog yet!<br/>
-      {% else %}
-
-        {% if blogs_page_number > 1 %}
-          <a class="npages" href="?bpage={{blogs_page_number - 1}}&opage={{all_blogs_page_number}}">view newer</a>
-        {% endif %}
-        {% if blogs_more_blogs %}
-          <a class="opages" href="?bpage={{blogs_page_number + 1}}&opage={{all_blogs_page_number}}">view older</a>
-        {% endif %}
-        <br/>
-        <hr/>
-        <ul>
-        {% for blog in blogs %}
-          <li><a class="blog-link"  href="/blog/{{blog.name}}">{{blog.name}}</a></li>
-        {% endfor %}
-        </ul>
-
-      {% endif %}
-      </div>
-      <div id="others">
-        <h3 class="warning">Other Blogs</h3>
-      {% if not all_blogs %}
-        No one else has written a blog yet!<br/>
-      {% else %}
-        {% if all_blogs_page_number > 1 %}
-          <a class="npages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number - 1}}">view newer</a>
-        {% endif %}
-        {% if all_blogs_more_blogs %}
-          <a class="opages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number + 1}}">view older</a>
-        {% endif %}
-        <br/>
-        <hr/>
-        <ul>
-        {% for all_blog in all_blogs %}
-          <li><a class="blog-link"  href="/blog/{{all_blog.name}}">{{all_blog.name}}</a></li>
-        {% endfor %}
-        </ul>
-
-      {% endif %}
-      </div>
-      <div style="clear:both"></div>
-    </div>
-    {% else %}
-      <div class="warning">
-        <h1 class="message orange">Sorry!</h2>
-        <h2 class="message">weblog is a members-only service</h2> 
-        <span class="subtext">In order to use all the features of weblog-ost please login.</span>
-      </div>
-    {% endif %}
+          {% if not blogs %}
+            {% if user_name %}
+              You haven't written a blog yet!<br/>
+            {% else %}
+              Login to start writing! <br/>
+            {% endif %}
+          {% else %}
+            {% if blogs_page_number > 1 %}
+              <a class="npages" href="?bpage={{blogs_page_number - 1}}&opage={{all_blogs_page_number}}">view newer</a>
+            {% endif %}
+            {% if blogs_more_blogs %}
+              <a class="opages" href="?bpage={{blogs_page_number + 1}}&opage={{all_blogs_page_number}}">view older</a>
+            {% endif %}
+            <br/>
+            <hr/>
+            <ul>
+            {% for blog in blogs %}
+              <li><a class="blog-link"  href="/blog/{{blog.name}}">{{blog.name}}</a></li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <div id="others">
+          <h3 class="warning">Other Blogs</h3>
+          {% if not all_blogs %}
+            No one else has written a blog yet!<br/>
+          {% else %}
+            {% if all_blogs_page_number > 1 %}
+              <a class="npages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number - 1}}">view newer</a>
+            {% endif %}
+            {% if all_blogs_more_blogs %}
+              <a class="opages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number + 1}}">view older</a>
+            {% endif %}
+            <br/>
+            <hr/>
+            <ul>
+            {% for all_blog in all_blogs %}
+              <li><a class="blog-link"  href="/blog/{{all_blog.name}}">{{all_blog.name}}</a></li>
+            {% endfor %}
+            </ul>
+          {% endif %}
+        </div>
+        <div style="clear:both"></div>
+      </div>  
     </div>
 {% endautoescape %}
 {% include "/templates/footer.html" %}

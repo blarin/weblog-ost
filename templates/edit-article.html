@@ -1,0 +1,33 @@
+{% include "/templates/header.html" %}
+{% autoescape true %}
+<div id="content">
+  <span class="warning">
+    <span class="big">{{article.title}}</span>
+    <span class="">from blog:</span>
+    <span class="big"><a class="blog-name" href="/blog/{{blog.name}}">{{blog.name}}</a></span>
+  </span>
+  <span class="author-banner">{{blog.author_name}}</span> 
+  <div id="new-article">
+    <form action="/blog/{{blog.name}}/article/{{article.key.integer_id()}}/edit" method="post">
+      <input type="hidden" value="{{blog.name}}" name="blog_name">
+      <input type="hidden" value="{{user_name}}" name="author">
+      <input type="hidden" value="{{article.key.integer_id()}}" name="article-id">
+      <h3 class="warning">Edit This Article?</h3>
+      <span class="warning">Title Your Article</span>
+      <input type="text" name="title" id="title" value="{{article.title}}"/>
+      <br/>
+      <br/>
+      <span class="warning">Add Some Content</span>
+      <span class="warning subtext">For images, go to <a class="blog-name" href="/images">UPLOADS</a> and upload an image, copy its permalink and paste it into the body of your article!</span>
+      <textarea name="content">{{article.content}}</textarea>
+      <br/>
+      <br/>
+      <span class="warning">Enter Some Comma-Separated Tags</span>
+      <input type="text" class="smaller-width" name="tags" value="{% for tag in article.tags %}{{tag}}{% if loop.index < article.tags|length %},{% endif %}{% endfor %}"/>
+      <input type="submit" value="Update!">
+      <a href="/blog/{{blog.name}}/article/{{article.title}}"><input type="button" class="cancel" value="Cancel"/></a>
+    </form>
+  </div>
+</div>
+{% endautoescape %}
+{% include "/templates/footer.html" %}

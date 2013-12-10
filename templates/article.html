@@ -7,9 +7,13 @@
       <span class="big"><a class="blog-name" href="/blog/{{blog.name}}">{{blog.name}}</a></span>
     </span>
     <span class="author-banner">{{blog.author_name}}</span> 
-    
     <div id="articles">
-      <span class="subtext">{{article.date.strftime('%H:%m on %m-%d-%Y')}}</span>
+      <span class="subtext">{{article.date.strftime('%m-%d-%Y')}}</span>
+      <span class="float-right subtext">
+        {% if user_id == article.author %}
+          <a class="no-lower" href="/blog/{{blog.name}}/article/{{article.key.integer_id()}}/edit">Edit Article</a>
+        {% endif %}
+        </span>
         <br/>
         <br/>
         {{article.content|safe}}
