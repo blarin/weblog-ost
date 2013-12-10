@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<rss version="2.0">
+  <channel>
+    <title>{{blog.name}}</title>
+    <link>{{link}}blog/{{blog.name}}</link>
+    <author>{{blog.author_name}}</author>
+    {% if articles|length > 0%}
+      {% for article in articles %}
+      <article>
+        <title>{{article.title}}</title>
+        <link>{{link}}blog/{{blog.name}}/article/{{article.title}}</link>
+        <date>{{article.date}}</date>
+        <content>{{article.content}}</content>
+        {% for tag in article.tags %}
+          {% if tag %}
+            <tag>{{tag}}</tag> 
+          {% else %}
+            <tag>No Tags Associated With This Article</tag>
+          {% endif %}
+        {% endfor %}
+      </article>
+      {% endfor %}
+    {% else %}  
+    <article>
+      No Articles Associated With This Blog
+    </article>
+    {% endif %}
+  </channel>
+</rss>

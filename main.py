@@ -31,11 +31,6 @@ def find_links(text):
 class MainHandler(webapp2.RequestHandler):
 
   def get(self):
-    paths = os.path.split(self.request.url)
-    if paths[1] != "":
-      self.redirect("/")
-      return
-
     page_size = 2
     if users.get_current_user():
       login_url = users.create_logout_url(self.request.uri)
@@ -52,49 +47,50 @@ class MainHandler(webapp2.RequestHandler):
       blogs_query = Blog.query().filter(Blog.author == user_id).order(-Blog.date)
       blogs = blogs_query.fetch(page_size, offset=((blogs_page_number - 1) * page_size))
       
-      other_blogs_page_number = self.request.get("opage")
-      if not other_blogs_page_number:
-        other_blogs_page_number = 1
+      all_blogs_page_number = self.request.get("opage")
+      if not all_blogs_page_number:
+        all_blogs_page_number = 1
       else:
-        other_blogs_page_number = int(other_blogs_page_number)
+        all_blogs_page_number = int(all_blogs_page_number)
 
-      other_blogs_query = Blog.query().filter(Blog.author != user_id).order(Blog.author).order(-Blog.date)
-      other_blogs = other_blogs_query.fetch(page_size, offset=((other_blogs_page_number - 1) * page_size))
+      all_blogs_query = Blog.query().order(-Blog.date)
+      all_blogs_count_query = Blog.query().order(-Blog.date)
+      all_blogs = all_blogs_query.fetch(page_size, offset=((all_blogs_page_number - 1) * page_size))
 
       blogs_count = blogs_query.count()
-      other_blogs_count = other_blogs_query.count()
+      all_blogs_count = all_blogs_count_query.count()
 
       if blogs_page_number * page_size < blogs_count:
         blogs_more_articles = True
       else:
         blogs_more_articles = False
 
-      if other_blogs_page_number * page_size < other_blogs_count:
-        other_blogs_more_articles = True
+      if all_blogs_page_number * page_size < all_blogs_count:
+        all_blogs_more_articles = True
       else:
-        other_blogs_more_articles = False
+        all_blogs_more_articles = False
 
     else:
       login_url = users.create_login_url(self.request.uri)
       login_message = "Login"
       user_name = ""
       blogs = []
-      other_blogs = []
+      all_blogs = []
       blogs_more_articles = None
       blogs_page_number = None
-      other_blogs_page_number = None
-      other_blogs_more_articles = None
+      all_blogs_page_number = None
+      all_blogs_more_articles = None
 
     values = {
       "blogs": blogs,
-      "other_blogs": other_blogs,
+      "all_blogs": all_blogs,
       "login_url": login_url,
       "login_message": login_message,
       "user_name": user_name,
       "blogs_more_blogs": blogs_more_articles,
       "blogs_page_number": blogs_page_number,
-      "other_blogs_page_number": other_blogs_page_number,
-      "other_blogs_more_blogs": other_blogs_more_articles
+      "all_blogs_page_number": all_blogs_page_number,
+      "all_blogs_more_blogs": all_blogs_more_articles
     }
 
     template = JINJA_ENVIRONMENT.get_template("templates/index.html")
@@ -425,7 +421,42 @@ class ImagePageHandler(webapp2.RequestHandler):
     }
 
     template = JINJA_ENVIRONMENT.get_template("templates/image.html")
-    self.response.write(template.render(values))     
+    self.response.write(template.render(values))
+
+class RSSHandler(webapp2.RequestHandler):
+
+  def get(self, blog_name):
+    self.response.headers['Content-Type'] = "text/xml; charset=utf-8"
+    if users.get_current_user() and blog_name != "":
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+    else:
+      self.redirect("/")
+      return
+
+    link = os.path.split(self.request.url)[0][:-3]
+
+    blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
+    blog = blog_query.get()
+
+    if not blog:
+      blog_query = Blog.query().filter(Blog.name == blog_name)
+      blog = blog_query.get()      
+
+    query = Article.query(ancestor=article_key(blog_name)).order(-Article.date)
+    articles = query.fetch()
+
+    values = {
+      "blog": blog,
+      "articles": articles,
+      "user_name": user_name,
+      "link": link
+    }
+
+    template = JINJA_ENVIRONMENT.get_template("templates/blog.rss")
+    self.response.write(template.render(values))  
 
 app = webapp2.WSGIApplication([
   ("/addblog", AddBlogHandler),
@@ -435,5 +466,6 @@ app = webapp2.WSGIApplication([
   ("/image/(.*)", ImageHandler),
   ("/blog/(.*)", BlogHandler),
   ("/tag/(.*)", TagHandler),
+  ("/rss/(.*)", RSSHandler),
   ("/.*", MainHandler)
 ], debug=True)

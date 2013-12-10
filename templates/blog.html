@@ -2,7 +2,8 @@
 {% autoescape true %}
     <div id="content">
       <h2 class="warning small-margin">{{blog_name}}</h2>
-      <span class="author-banner">{{blog.author_name}}</span> 
+      <span class="author-banner">{{blog.author_name}}<a href="/rss/{{blog_name}}"><img class="icon" src="/static/rss-icon.png"/></a></span>
+
     
       {% if blog.author == user_id %}
         <div id="new-article">

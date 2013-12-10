@@ -19,10 +19,10 @@
       {% else %}
 
         {% if blogs_page_number > 1 %}
-          <a class="npages" href="?bpage={{blogs_page_number - 1}}&opage={{other_blogs_page_number}}">view newer</a>
+          <a class="npages" href="?bpage={{blogs_page_number - 1}}&opage={{all_blogs_page_number}}">view newer</a>
         {% endif %}
         {% if blogs_more_blogs %}
-          <a class="opages" href="?bpage={{blogs_page_number + 1}}&opage={{other_blogs_page_number}}">view older</a>
+          <a class="opages" href="?bpage={{blogs_page_number + 1}}&opage={{all_blogs_page_number}}">view older</a>
         {% endif %}
         <br/>
         <hr/>
@@ -36,20 +36,20 @@
       </div>
       <div id="others">
         <h3 class="warning">Other Blogs</h3>
-      {% if not other_blogs %}
+      {% if not all_blogs %}
         No one else has written a blog yet!<br/>
       {% else %}
-        {% if other_blogs_page_number > 1 %}
-          <a class="npages"  href="?bpage={{blogs_page_number}}&opage={{other_blogs_page_number - 1}}">view newer</a>
+        {% if all_blogs_page_number > 1 %}
+          <a class="npages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number - 1}}">view newer</a>
         {% endif %}
-        {% if other_blogs_more_blogs %}
-          <a class="opages"  href="?bpage={{blogs_page_number}}&opage={{other_blogs_page_number + 1}}">view older</a>
+        {% if all_blogs_more_blogs %}
+          <a class="opages"  href="?bpage={{blogs_page_number}}&opage={{all_blogs_page_number + 1}}">view older</a>
         {% endif %}
         <br/>
         <hr/>
         <ul>
-        {% for other_blog in other_blogs %}
-          <li><a class="blog-link"  href="/blog/{{other_blog.name}}">{{other_blog.name}}</a></li>
+        {% for all_blog in all_blogs %}
+          <li><a class="blog-link"  href="/blog/{{all_blog.name}}">{{all_blog.name}}</a></li>
         {% endfor %}
         </ul>
 
