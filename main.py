@@ -37,14 +37,11 @@ class MainHandler(webapp2.RequestHandler):
       login_message = "Logout"
       user_name = users.get_current_user().nickname()
       user_id = users.get_current_user().user_id()
-      
     else:
       login_url = users.create_login_url(self.request.uri)
       login_message = "Login"
       user_name = ""
       user_id = None
-
-
     
     blogs_page_number = self.request.get("bpage")        
     if not blogs_page_number:
@@ -78,10 +75,22 @@ class MainHandler(webapp2.RequestHandler):
     else:
       all_blogs_more_articles = False
 
+    tags = {}
+
+    for blog in all_blogs:
+      query = Article.query(ancestor=article_key(blog.name))
+      articles = query.fetch()
+      for article in articles:
+        for tag in article.tags:
+          if tag in tags:
+            tags[tag] = tags[tag] + 1
+          elif tag is not None and tag and tag not in tags:
+            tags[tag] = 1
 
     values = {
       "blogs": blogs,
       "all_blogs": all_blogs,
+      "tags": tags,
       "login_url": login_url,
       "login_message": login_message,
       "user_name": user_name,
