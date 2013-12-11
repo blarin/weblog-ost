@@ -12,6 +12,7 @@
       <input type="hidden" value="{{blog.name}}" name="blog_name">
       <input type="hidden" value="{{user_name}}" name="author">
       <input type="hidden" value="{{article.key.integer_id()}}" name="article-id">
+      <span class="subtext">Last Modified: {{article.date.strftime('%H:%M %m-%d-%Y')}} | Created: {{article.creation_date.strftime('%H:%M %m-%d-%Y')}}</span>
       <h3 class="warning">Edit This Article?</h3>
       <span class="warning">Title Your Article</span>
       <input type="text" name="title" id="title" value="{{article.title}}"/>

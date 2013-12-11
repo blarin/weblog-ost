@@ -62,7 +62,7 @@
           <h3 class="warning">Popular Tags</h3>
           {% if tags|length > 0%}
             {% for tag in tags %}
-              <a class="blog-link" href="/tag/{{tag}}" style="font-size:{{10*tags[tag]}}pt">{{tag}}</a>
+              <a class="blog-link" href="/tag/{{tag}}" style="font-size:{{5 + 3*tags[tag]}}pt">{{tag}}</a>
             {% endfor %}
           {% else %}
             No One Has Tagged An Article Yet
