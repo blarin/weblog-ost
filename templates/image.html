@@ -17,22 +17,27 @@
         <a class="opages" href="?page={{page_number + 1}}">view older images</a>
       {% endif %}
       <br/>
-      <hr/>
-      {% for image in images %}
-        <div class="uploaded-image">
-          <a href="{{page_url}}/image/{{image.filename}}" target="_blank"><img class="thumb" src="/image/{{image.filename}}"/></a>
-          <div class="image-info">
-            <span class="float-right subtext">{{image.date.strftime('%m-%d-%Y')}}</span>
-            <br/>
-            <br/>
-            <span class="warning">Permalink:</span>
-            <br/>
-            <br/>
-            <span class="warning">{{page_url}}/image/{{image.filename}}</span>
-          </div>
-          <div style="clear:both"></div>
-        </div>
-      {% endfor %}
+      <div class="uploaded-image">
+        {% if images|length > 0 %}
+          {% for image in images %}
+          
+            <a href="{{page_url}}/image/{{image.filename}}" target="_blank"><img class="thumb" src="/image/{{image.filename}}"/></a>
+            <div class="image-info">
+              <span class="float-right subtext">{{image.date.strftime('%m-%d-%Y')}}</span>
+              <br/>
+              <br/>
+              <span class="warning">Permalink:</span>
+              <br/>
+              <br/>
+              <span class="warning">{{page_url}}/image/{{image.filename}}</span>
+            </div>
+            <div style="clear:both"></div>
+          
+          {% endfor %}
+        {% else %}
+          You Haven't Uploaded Any Photos Yet!
+        {% endif %}
+      </div>
     </div>
   </div>
 {% endautoescape %}

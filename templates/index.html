@@ -60,9 +60,13 @@
         <div style="clear:both"></div>
         <div id="tag-cloud">
           <h3 class="warning">Popular Tags</h3>
-          {% for tag in tags %}
+          {% if tags|length > 0%}
+            {% for tag in tags %}
               <a class="blog-link" href="/tag/{{tag}}" style="font-size:{{10*tags[tag]}}pt">{{tag}}</a>
-          {% endfor %}
+            {% endfor %}
+          {% else %}
+            No One Has Tagged An Article Yet
+          {% endif %}
           <br/><br/>
         </div>
       </div>  

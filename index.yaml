@@ -14,5 +14,17 @@ indexes:
 - kind: Blog
   ancestor: yes
   properties:
+  - name: author
+    direction: desc
+
+- kind: Blog
+  ancestor: yes
+  properties:
+  - name: date
+    direction: desc
+
+- kind: Image
+  properties:
+  - name: author
   - name: date
     direction: desc
