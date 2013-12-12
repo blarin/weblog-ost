@@ -20,12 +20,6 @@ def shorten(text):
   return find_links(text[:497] + "...")
 
 def find_links(text):
-  links = re.findall(r"(https?://\S+)", text)
-  for link in links[:]:
-    if link[-4:] == ".jpg" or link[-4:] == ".gif" or link[-4:] == ".png":
-      text = text.replace(link, "<br/><a href='" + link + "' target='_blank'><img src='" + link + "'/></a><br/>")
-    else:
-      text = text.replace(link, "<a href='" + link + "' target='_blank'>" + link + "</a>")
   return text
 
 class MainHandler(webapp2.RequestHandler):

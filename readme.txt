@@ -5,6 +5,9 @@ URL: http://weblog-ost.appspot.com/
 
 DOCUMENTATION:
 
+  MISSING FEATURE:
+  Links in an article's content are not longer replaced with clickable hyperlinks, and images are no longer displayed inline. The post is displayed as completely plain text. This has the added security bonus of dissallowing a user from injecting html into their posts.
+
   TESTING:
   Upon accessing this blogging platform you will be taken to the Main Page.
 

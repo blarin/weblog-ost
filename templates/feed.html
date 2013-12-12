@@ -20,7 +20,7 @@
         {% for article in articles %}
           <span class="subtext">Last Modified: {{article.date.strftime('%H:%M %m-%d-%Y')}} | Created: {{article.creation_date.strftime('%H:%M %m-%d-%Y')}}</span>
           <h3 class="small-margin">{{article.title}}</h3>
-            {{article.abbreviated_content|safe}}
+            {{article.abbreviated_content}}
           <br/>
           <a class="float-right no-lower" href="/blog/{{article.blog_name}}/article/{{article.title}}">Permalink</a>
           <br/>
