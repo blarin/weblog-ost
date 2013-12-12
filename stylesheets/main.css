@@ -290,6 +290,63 @@ span.warning{
   width:200px;
 }
 
+/*css for article.html*/
+#tags{
+  float:left;
+  width:450px;
+}
+
+#voting{
+  float:right;
+  width:120px;
+  text-align: center;
+}
+
+#voting h2{
+  margin: 0;
+  background-color: #ccc;
+}
+
+#voting .love-it{
+  border:none;
+  width:60px;
+  height:20px;
+  margin:0;
+  float:left;
+  color:white;
+  background-color: darkorange;
+}
+
+#voting .loved{
+  border:none;
+    width:60px;
+    height:20px;
+    margin:0;
+    float:left;
+    color:white;
+    background-color: red;
+}
+
+#voting .hate-it{
+  border:none;
+  width:60px;
+  height:20px;
+  margin:0;
+  color:black;
+  float: left;
+  background-color: white;
+}
+
+#voting .hated{
+  border:none;
+  width:60px;
+  height:20px;
+  margin:0;
+  color:white;
+  float: left;
+  background-color: black;
+}
+
 /*css for image.html*/
 .uploaded-image{
   background-color: #888;

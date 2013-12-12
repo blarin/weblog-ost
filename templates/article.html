@@ -20,17 +20,39 @@
       <br/>
       <br/>
       <hr/>
-    Tags:
-    {% for tag in article.tags %}
-      {% if tag %}
-        <a href="/tag/{{tag}}">{{tag}}</a> 
-        {% if loop.index < article.tags|length %}
-          | <!--tag separators-->
-        {% endif %}
-      {% else %}
-        <span class="orange">No Tags Associated With This Article</span>
-      {% endif %}
-    {% endfor %}
+      <div id="tags">
+        Tags:
+        {% for tag in article.tags %}
+          {% if tag %}
+            <a href="/tag/{{tag}}">{{tag}}</a> 
+            {% if loop.index < article.tags|length %}
+              | <!--tag separators-->
+            {% endif %}
+          {% else %}
+            <span class="orange">No Tags Associated With This Article</span>
+          {% endif %}
+        {% endfor %}
+      </div>
+      <div id="voting">
+        <h2>{{article.votes}}</h2>
+        <form action="/blog/{{blog.name}}/article/{{article.key.integer_id()}}/vote" method="post">
+          <input type="hidden" value="1" name="the-vote">
+          {% if user_id in article.lovers%}
+            <input type="submit" class="loved" value="UnLove It"/>
+          {% else %}
+            <input type="submit" class="love-it" value="Love It"/>
+          {% endif %}
+        </form>
+        <form action="/blog/{{blog.name}}/article/{{article.key.integer_id()}}/vote" method="post">
+          <input type="hidden" value="-1" name="the-vote">
+          {% if user_id in article.haters%}
+            <input type="submit" class="hated" value="UnHate It"/>
+          {% else %}
+            <input type="submit" class="hate-it" value="Hate It"/>
+          {% endif %}
+        </form>
+      </div>
+      <div style="clear:both"></div>
     </div>
   </div>
 {% endautoescape %}

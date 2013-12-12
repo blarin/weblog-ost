@@ -209,6 +209,9 @@ class Article(ndb.Model):
   tags = ndb.StringProperty(repeated=True)
   date = ndb.DateTimeProperty(auto_now=True)
   creation_date = ndb.DateTimeProperty(auto_now_add=True)
+  votes = ndb.IntegerProperty(indexed=False)
+  lovers = ndb.StringProperty(repeated=True)
+  haters = ndb.StringProperty(repeated=True)
 
 class AddArticleHandler(webapp2.RequestHandler):
 
@@ -229,6 +232,7 @@ class AddArticleHandler(webapp2.RequestHandler):
 
     article.title = self.request.get("title")
     article.content = self.request.get("content")
+    article.votes = 0
     article.tags = self.request.get("tags").split(",")
     for i in range(0, len(article.tags)):
       article.tags[i] = article.tags[i].lower().strip()
@@ -297,12 +301,16 @@ class EditArticleHandler(webapp2.RequestHandler):
       article.author_name = users.get_current_user().nickname()
       article.blog_name = blog_name
     else:
-      self.redirect("/shitbag")
+      self.redirect("/")
       return
 
     article.title = self.request.get("title")
     article.content = self.request.get("content")
-    
+
+    article.tags = self.request.get("tags").split(",")
+    for i in range(0, len(article.tags)):
+      article.tags[i] = article.tags[i].lower().strip()
+
     no_repeat = []
     for tag in article.tags:
       if tag not in no_repeat:
@@ -554,10 +562,56 @@ class RSSHandler(webapp2.RequestHandler):
     template = JINJA_ENVIRONMENT.get_template("templates/blog.rss")
     self.response.write(template.render(values))  
 
+class VoteHandler(webapp2.RequestHandler):
+
+  def post(self, blog_name, article_int_id):
+    the_vote = int(self.request.get("the-vote"))
+
+    if users.get_current_user() and blog_name != "":
+      article = Article.get_by_id(int(article_int_id), parent=article_key(blog_name))
+      article.author = users.get_current_user().user_id()
+      article.author_name = users.get_current_user().nickname()
+      article.blog_name = blog_name
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+    else:
+      self.redirect("/")
+      return
+
+    #users can't vote twice!
+    if the_vote == 1:
+      if user_id in article.lovers:
+        article.votes = article.votes + -1*the_vote
+        article.lovers.remove(user_id)
+      else:
+        article.votes = article.votes + the_vote
+        if user_id in article.haters:
+          article.votes = article.votes + 1
+          article.haters.remove(user_id)
+        article.lovers.append(user_id)
+    elif the_vote == -1:
+      if user_id in article.haters:
+        article.votes = article.votes + -1*the_vote
+        article.haters.remove(user_id)
+      else:
+        article.votes = article.votes + the_vote
+        if user_id in article.lovers:
+          article.votes = article.votes - 1
+          article.lovers.remove(user_id)
+        article.haters.append(user_id)
+    else:
+      self.redirect("/")
+      return
+
+    article.put()
+
+    self.redirect("/blog/" + blog_name + "/article/" + article.title)
+
 app = webapp2.WSGIApplication([
   ("/addblog", AddBlogHandler),
   ("/blog/.*/addarticle", AddArticleHandler),
   ("/blog/(.*)/article/(.*)/edit", EditArticleHandler),
+  ("/blog/(.*)/article/(.*)/vote", VoteHandler),
   ("/blog/(.*)/article/(.*)", ArticleHandler),
   ("/image", ImagePageHandler),
   ("/image/(.*)", ImageHandler),
