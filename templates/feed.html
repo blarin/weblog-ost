@@ -6,11 +6,6 @@
         <span class="author-banner">
           Blogs You Follow
         </span>
-        <div id="icons" class="subtext">
-          <a href="/rss/{{blog_name}}">
-            <img class="icon" src="/static/rss-icon.png"/>
-          </a>
-        </div>
       </div>
     <div id="articles">
       {% if page_number > 1 %}
@@ -32,7 +27,7 @@
           <hr/>
         {% endfor %}
       {% else %}
-        No Articles Associated With This Blog
+        You Haven't Followed Any Blogs Yet!
       {% endif %}
     </div>
   </div>

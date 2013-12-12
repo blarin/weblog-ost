@@ -165,7 +165,7 @@ class BlogHandler(webapp2.RequestHandler):
 class FeedHandler(webapp2.RequestHandler):
 
   def get(self):
-    page_size = 1
+    page_size = 10
     if users.get_current_user():
       login_url = users.create_logout_url(self.request.uri)
       login_message = "Logout"
@@ -188,8 +188,11 @@ class FeedHandler(webapp2.RequestHandler):
     articles = []
     for follow in follows:
       article_query = Article.query(ancestor=article_key(follow.blog_name)).order(-Article.date)
-      articles = articles + article_query.fetch(page_size, offset=((page_number - 1) * page_size))
-      count = count + article_query.count()
+      articles = articles + article_query.fetch()
+
+    count = len(articles)
+
+    articles = articles[((page_number - 1) * page_size):((page_number - 1) * page_size) + page_size]
     
     if page_number * page_size < count:
       more_articles = True
@@ -666,9 +669,6 @@ class VoteHandler(webapp2.RequestHandler):
 
     if users.get_current_user() and blog_name != "":
       article = Article.get_by_id(int(article_int_id), parent=article_key(blog_name))
-      article.author = users.get_current_user().user_id()
-      article.author_name = users.get_current_user().nickname()
-      article.blog_name = blog_name
       user_name = users.get_current_user().nickname()
       user_id = users.get_current_user().user_id()
     else:
