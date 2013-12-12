@@ -115,11 +115,11 @@ class BlogHandler(webapp2.RequestHandler):
       blog_query = Blog.query(ancestor=blog_key(user_id)).filter(Blog.name == blog_name)
       blog = blog_query.get()
     else:
-     login_url = users.create_login_url(self.request.uri)
-     login_message = "Login"
-     user_name = ""
-     user_id = None
-     blog = None
+      login_url = users.create_login_url(self.request.uri)
+      login_message = "Login"
+      user_name = ""
+      user_id = None
+      blog = None
 
     page_number = self.request.get("page")
     if not page_number:
@@ -162,6 +162,102 @@ class BlogHandler(webapp2.RequestHandler):
     template = JINJA_ENVIRONMENT.get_template("templates/blog.html")
     self.response.write(template.render(values))        
 
+class FeedHandler(webapp2.RequestHandler):
+
+  def get(self):
+    page_size = 1
+    if users.get_current_user():
+      login_url = users.create_logout_url(self.request.uri)
+      login_message = "Logout"
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+      follower_query = Follower.query(ancestor=follower_key(user_id))
+      follows = follower_query.fetch()
+    else:
+      self.redirect("/")
+      return
+
+    
+    page_number = self.request.get("page")
+    if not page_number:
+      page_number = 1
+    else:
+      page_number = int(page_number)
+
+    count = 0  
+    articles = []
+    for follow in follows:
+      article_query = Article.query(ancestor=article_key(follow.blog_name)).order(-Article.date)
+      articles = articles + article_query.fetch(page_size, offset=((page_number - 1) * page_size))
+      count = count + article_query.count()
+    
+    if page_number * page_size < count:
+      more_articles = True
+    else:
+      more_articles = False
+    
+    for article in articles[:]:
+      if len(article.content) > 500:
+        article.abbreviated_content = shorten(article.content)
+      else:
+        article.abbreviated_content = find_links(article.content)
+
+    values = {
+      "follows": follows,
+      "articles": articles,
+      "login_url": login_url,
+      "login_message": login_message,
+      "user_name": user_name,
+      "user_id": user_id,
+      "page_number": page_number,
+      "more_articles": more_articles
+    }
+
+    template = JINJA_ENVIRONMENT.get_template("templates/feed.html")
+    self.response.write(template.render(values)) 
+
+def follower_key(follower):
+  return ndb.Key("Follower", follower)
+
+class Follower(ndb.Model):
+
+  blog_name = ndb.StringProperty()
+  follower_name = ndb.StringProperty()
+  follower_id = ndb.StringProperty()
+  date = ndb.DateTimeProperty(auto_now_add=True)    
+
+class FollowHandler(webapp2.RequestHandler):
+
+  def post(self, blog_name):
+    if users.get_current_user():
+      user_name = users.get_current_user().nickname()
+      user_id = users.get_current_user().user_id()
+    else:
+      self.redirect("/blog/" + blog_name)
+      return
+
+    blog_query = Blog.query().filter(Blog.name == blog_name)
+    blog = blog_query.get()
+
+    if user_id not in blog.followers:
+      blog.followers.append(user_id)
+      follower = Follower(parent=follower_key(user_id))
+      follower.blog_name = blog_name
+      follower.follower_id = users.get_current_user().user_id()
+      follower.follower_name = users.get_current_user().nickname()
+      follower.put()
+    else:
+      follower_query = Follower.query(ancestor=follower_key(user_id)).filter(Follower.blog_name == blog_name)
+      follower = follower_query.get()
+      follower.key.delete()
+      blog.followers.remove(user_id)
+
+    blog.put()
+    
+    
+    self.redirect("/blog/" + blog_name)
+
+
 def blog_key(author):
   return ndb.Key("Author", author)
 
@@ -170,6 +266,7 @@ class Blog(ndb.Model):
   author = ndb.StringProperty()
   author_name = ndb.StringProperty()
   name = ndb.StringProperty()
+  followers = ndb.StringProperty(repeated=True)
   date = ndb.DateTimeProperty(auto_now_add=True)
 
 
@@ -460,7 +557,7 @@ class ImageHandler(webapp2.RequestHandler):
       self.redirect("/")
       return
 
-    filename = self.request.params["image"].filename
+    filename = self.request.params["image"].filename.lower()
     count = 0
 
     extension = filename[-4:]
@@ -616,6 +713,8 @@ app = webapp2.WSGIApplication([
   ("/image", ImagePageHandler),
   ("/image/(.*)", ImageHandler),
   ("/blog/(.*)", BlogHandler),
+  ("/feed/follow/(.*)", FollowHandler),
+  ("/feed", FeedHandler),
   ("/tag/(.*)", TagHandler),
   ("/rss/(.*)", RSSHandler),
   ("/.*", MainHandler)

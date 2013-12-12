@@ -2,7 +2,40 @@
 {% autoescape true %}
     <div id="content">
       <h2 class="warning small-margin">{{blog_name}}</h2>
-      <span class="author-banner">{{blog.author_name}}<a href="/rss/{{blog_name}}"><img class="icon" src="/static/rss-icon.png"/></a></span>
+      <div id="sub-content">
+        <span class="author-banner">
+          {{blog.author_name}}
+        </span>
+        <div id="icons" class="subtext">
+          {% if blog.followers|length == 0 %}
+            0 followers
+          {% elif blog.followers|length == 1 %}
+            1 follower
+          {% else %}
+            {{blog.followers|length}} followers
+          {% endif %}
+          {% if user_id and blog.author != user_id %}
+            <div id="follow-form-container">
+              <form id="follow-form" action="/feed/follow/{{blog_name}}" method="post">
+                {% if user_id not in blog.followers %}
+                  <a href="#" onclick="document.getElementById('follow-form').submit()">
+                    <input type="hidden" value="follow" name="follow">
+                    <img class="icon" src="/static/follow-icon.png"/>
+                  </a>
+                {% else %}
+                  <a href="#" onclick="document.getElementById('follow-form').submit()">
+                    <input type="hidden" value="unfollow" name="follow">
+                    <img class="icon" src="/static/unfollow-icon.png"/>
+                  </a>
+                {% endif %}
+              </form>
+            </div>
+          {% endif %}
+          <a href="/rss/{{blog_name}}">
+            <img class="icon" src="/static/rss-icon.png"/>
+          </a>
+        </div>
+      </div>
 
     
       {% if blog.author == user_id %}
@@ -16,7 +49,7 @@
             <br/>
             <br/>
             <span class="warning">Add Some Content</span>
-            <span class="warning subtext">For images, go to <a class="blog-name" href="/images">UPLOADS</a> and upload an image, copy its permalink and paste it into the body of your article!</span>
+            <span class="warning subtext">For images, go to <a class="blog-name" href="/image" target="_blank">UPLOADS</a> and upload an image, copy its permalink and paste it into the body of your article!</span>
             <textarea name="content"></textarea>
             <br/>
             <br/>

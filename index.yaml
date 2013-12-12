@@ -4,7 +4,7 @@ indexes:
   properties:
   - name: date
     direction: desc
-    
+
 - kind: Article
   properties:
   - name: tags
@@ -38,5 +38,11 @@ indexes:
 - kind: Image
   properties:
   - name: filename
+  - name: date
+    direction: desc
+
+- kind: Follow
+  ancestor: yes
+  properties:
   - name: date
     direction: desc

@@ -74,11 +74,29 @@ li:before {
   font-weight: bold;
 }
 
+#sub-content{
+  text-align: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+#icons{
+  position: absolute;
+  right:0;
+  top:0;
+  width:110px;
+}
+
+#icons #follow-form-container{
+  float:right;
+  display:inline;
+}
+
 .icon{
   width:20px;
   line-height: 1em;
   vertical-align: middle;
-  margin: 0 0 4px 20px;
+  float:right;
 }
 
 .small-margin{
@@ -92,11 +110,11 @@ li:before {
 .subtext{
   font-size:8pt;
 }
+
 .author-banner{
   width:350px;
   text-align: center;
   font-size:10pt;
-  display: block;
   margin:0 auto 5px auto;
 }
 
@@ -304,7 +322,7 @@ span.warning{
 
 #voting h2{
   margin: 0;
-  background-color: #ccc;
+  background-color: #ddd;
 }
 
 #voting .love-it{
