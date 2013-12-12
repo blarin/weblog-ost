@@ -28,3 +28,7 @@ DOCUMENTATION:
   Handlers that correspond to actual user views also correspond to a template that can be found in /templates. These use the jinja2 templating language.
 
   The styling for the site is written in CSS and is available at /stylesheets/main.css. All template files use the same style sheet. For that matter, all template files have the same header and footer, which can be found at /templates/header.html and /templates/footer.html, respectively.
+
+
+  EXTRA CREDIT:
+  I added the ability to follow specific blogs, as well as unfollow them (when bloggers get too annoying!). The user may then access their article feed at the url /feed. I think this is an important feature in creating an online blogging network
