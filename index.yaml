@@ -4,6 +4,12 @@ indexes:
   properties:
   - name: date
     direction: desc
+    
+- kind: Article
+  properties:
+  - name: tags
+  - name: date
+    direction: desc
 
 - kind: Tag
   ancestor: yes
@@ -26,5 +32,11 @@ indexes:
 - kind: Image
   properties:
   - name: author
+  - name: date
+    direction: desc
+
+- kind: Image
+  properties:
+  - name: filename
   - name: date
     direction: desc

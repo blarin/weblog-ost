@@ -233,6 +233,13 @@ class AddArticleHandler(webapp2.RequestHandler):
     for i in range(0, len(article.tags)):
       article.tags[i] = article.tags[i].lower().strip()
 
+    no_repeat = []
+    for tag in article.tags:
+      if tag not in no_repeat:
+        no_repeat.append(tag)
+
+    article.tags = no_repeat
+
     if article.title == "" or article.content == "":
       self.redirect("/blog/" + blog_name)
       return
@@ -295,9 +302,13 @@ class EditArticleHandler(webapp2.RequestHandler):
 
     article.title = self.request.get("title")
     article.content = self.request.get("content")
-    article.tags = self.request.get("tags").split(",")
-    for i in range(0, len(article.tags)):
-      article.tags[i] = article.tags[i].lower().strip()
+    
+    no_repeat = []
+    for tag in article.tags:
+      if tag not in no_repeat:
+        no_repeat.append(tag)
+
+    article.tags = no_repeat
 
     if article.title == "" or article.content == "":
       self.redirect("/blog/" + blog_name)
